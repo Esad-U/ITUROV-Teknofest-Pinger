@@ -1,15 +1,15 @@
 import cv2
 import numpy as np
 
-
 # constans
 lowerh = 0
 lowers = 114
 lowerv = 168
 upperh = 59
 uppers = 220
-upperv = 213
+upperv = 255
 
+# functions
 def yaw_right(image):
     cv2.putText(image, "Yaw Right", (25,50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
 def yaw_left(image):
@@ -24,7 +24,7 @@ cap = cv2.VideoCapture("videos/video4.mkv")
 lower_color = np.array([lowerh,lowers,lowerv])
 upper_color = np.array([upperh, uppers, upperv])
 
-if cap.isOpened() == False:
+if not cap.isOpened():
     print("Error")
 else:
     while True:
@@ -49,6 +49,7 @@ else:
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(frame_hsv, lower_color, upper_color)
         blur = cv2.GaussianBlur(mask, (5,5), 0)
+        blur = cv2.GaussianBlur(blur, (5,5), 0)
 
         contours, _ = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         if ret:
@@ -74,6 +75,7 @@ else:
 
                 cv2.circle(frame, (final_cX, final_cY), 7, (255,0,0), -1)
                 cv2.putText(frame, "center", (final_cX-20, final_cY-20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+
                 if final_cX < vert_line_left:
                     yaw_left(frame)
                 elif final_cX > vert_line_right:
@@ -85,7 +87,7 @@ else:
 
             cv2.putText(frame, (str(len(contours))+" contours"), (25,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
             cv2.imshow("Video", frame)
-            cv2.imshow("Masked", blur)
+            cv2.imshow("Masked", mask)
         else:
             break
         if cv2.waitKey(1) & 0xFF == 27:
