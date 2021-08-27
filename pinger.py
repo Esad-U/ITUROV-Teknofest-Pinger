@@ -9,7 +9,6 @@ upperh = 59
 uppers = 220
 upperv = 255
 
-# functions
 def yaw_right(image):
     cv2.putText(image, "Yaw Right", (25,50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
 def yaw_left(image):
@@ -24,7 +23,7 @@ cap = cv2.VideoCapture("videos/video4.mkv")
 lower_color = np.array([lowerh,lowers,lowerv])
 upper_color = np.array([upperh, uppers, upperv])
 
-if not cap.isOpened():
+if cap.isOpened() == False:
     print("Error")
 else:
     while True:
@@ -49,33 +48,30 @@ else:
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(frame_hsv, lower_color, upper_color)
         blur = cv2.GaussianBlur(mask, (5,5), 0)
-        blur = cv2.GaussianBlur(blur, (5,5), 0)
+        blur = cv2.GaussianBlur(mask, (5, 5), 0)
 
         contours, _ = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         if ret:
             if len(contours) > 0:
-                """if len(contours) > 1:
-                    cnt = contours[int(len(contours)/2)]
-                elif len(contours) == 1:
-                    cnt = contours[0]"""
-
                 sum_cX = 0
                 sum_cY = 0
+                area_sum = 0
                 for cnt in contours:
                     M = cv2.moments(cnt)
+                    area = cv2.contourArea(cnt)
                     if M["m00"] != 0:
                         cX = int(M["m10"] / M["m00"])
                         cY = int(M["m01"] / M["m00"])
-                        sum_cX += cX
-                        sum_cY += cY
+                        sum_cX += area*cX
+                        sum_cY += area*cY
+                        area_sum += area
                         cv2.drawContours(frame, [cnt], -1, (0, 0, 255), 1)
 
-                final_cX = int(sum_cX/len(contours))
-                final_cY = int(sum_cY/len(contours))
+                final_cX = int(sum_cX/area_sum)
+                final_cY = int(sum_cY/area_sum)
 
                 cv2.circle(frame, (final_cX, final_cY), 7, (255,0,0), -1)
                 cv2.putText(frame, "center", (final_cX-20, final_cY-20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
-
                 if final_cX < vert_line_left:
                     yaw_left(frame)
                 elif final_cX > vert_line_right:
@@ -87,7 +83,7 @@ else:
 
             cv2.putText(frame, (str(len(contours))+" contours"), (25,25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
             cv2.imshow("Video", frame)
-            cv2.imshow("Masked", mask)
+            #cv2.imshow("Masked", blur)
         else:
             break
         if cv2.waitKey(1) & 0xFF == 27:
