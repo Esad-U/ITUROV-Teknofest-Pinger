@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 class Pinger():
 
     # constans
@@ -39,8 +38,6 @@ class Pinger():
         return cap
 
     def pinger_task_heading(self, frame, heading):
-
-
         # center of frame
         center_y = int(frame.shape[0] / 2)
         center_x = int(frame.shape[1] / 2)
@@ -132,7 +129,6 @@ class Pinger():
         frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(frame_hsv, self.lower_color, self.upper_color)
         blur = cv2.GaussianBlur(mask, (5, 5), 0)
-        blur = cv2.GaussianBlur(mask, (5, 5), 0)
 
         contours, _ = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
 
@@ -157,11 +153,13 @@ class Pinger():
             cv2.circle(frame, (final_cX, final_cY), 7, (255, 0, 0), -1)
             cv2.putText(frame, "center", (final_cX - 20, final_cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            heading_error = 320 - final_cX
+            heading_error = 320 - final_cX #ortadan sapma
 
-            altitude_error = final_cY - 240 + 60
+            altitude_error = final_cY - 240 + 60 #ortadan sapma
 
         cv2.putText(frame, (str(len(contours)) + " contours"), (25, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), 2)
+        return_list = [0,0,0,0,0,0]
 
-        return frame, heading_error, altitude_error
+        #return frame, heading_error, altitude_error
+        return return_list
